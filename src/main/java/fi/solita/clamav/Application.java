@@ -1,10 +1,5 @@
 package fi.solita.clamav;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.MultipartConfigElement;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -12,6 +7,10 @@ import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import javax.servlet.MultipartConfigElement;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableAutoConfiguration
@@ -42,8 +41,8 @@ public class Application {
     defaults.put("clamd.host", "192.168.50.72");
     defaults.put("clamd.port", 3310);
     defaults.put("clamd.timeout", 500);
-    defaults.put("clamd.maxfilesize", "20000KB");
-    defaults.put("clamd.maxrequestsize", "20000KB");
+    defaults.put("clamd.maxfilesize", "100MB");
+    defaults.put("clamd.maxrequestsize", "100MB");
     app.setDefaultProperties(defaults);
     app.run(args);
   }

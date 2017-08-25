@@ -1,14 +1,12 @@
 package fi.solita.clamav;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class ClamAVProxy {
@@ -26,21 +24,33 @@ public class ClamAVProxy {
    * @return Clamd status.
    */
   @RequestMapping("/")
-  public String ping() throws IOException {
+  public @ResponseBody Map<String, Boolean> ping() throws IOException {
     ClamAVClient a = new ClamAVClient(hostname, port, timeout);
-    return "Clamd responding: " + a.ping() + "\n";
+
+    HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+
+    map.put("status", a.ping());
+
+    return map;
   }
 
-  /**
-   * @return Clamd scan result
-   */
-  @RequestMapping(value="/scan", method=RequestMethod.POST)
-  public @ResponseBody String handleFileUpload(@RequestParam("name") String name,
-                                               @RequestParam("file") MultipartFile file) throws IOException{
+  @RequestMapping(value="/scan", method=RequestMethod.POST, produces="application/json")
+  public @ResponseBody Map<String, Boolean> handleFileUpload(@RequestParam("name") String name,
+                                                             @RequestParam("file") MultipartFile file) throws IOException {
+
+    HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+
     if (!file.isEmpty()) {
       ClamAVClient a = new ClamAVClient(hostname, port, timeout);
       byte[] r = a.scan(file.getInputStream());
-      return "Everything ok : " + ClamAVClient.isCleanReply(r) + "\n";
-    } else throw new IllegalArgumentException("empty file");
+
+      map.put("infected", !ClamAVClient.isCleanReply(r));
+    } else {
+      throw new IllegalArgumentException("empty file");
+    }
+
+    return map;
+
   }
+
 }
